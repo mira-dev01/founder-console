@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MIRA Founder Console
 
-## Getting Started
+Internal-only dashboard showing real-time credit balances and usage for every
+third-party API MIRA's production backend depends on (Twilio, Groq, Cloudinary,
+etc). Not a product feature, not a business-metrics dashboard — just "are we about
+to run out of X credits."
 
-First, run the development server:
+This is a separate app and deployment from `mira-prod`. It does not share a
+database, environment variables, or code with that repo — it only talks to each
+provider's own API using its own copies of credentials.
+
+## Status
+
+Currently all providers are shown as **reference** cards (name, what MIRA uses it
+for, a link to that provider's own dashboard). Live cards get added one provider at
+a time, only once a fetcher has been built and verified to return real data against
+that provider's actual current API docs — see [`src/lib/providers/registry.ts`](src/lib/providers/registry.ts)
+for per-provider status and notes.
+
+## Auth
+
+Single shared passcode, not per-person accounts:
+
+- `FOUNDER_PASSCODE` gates every route via [`src/middleware.ts`](src/middleware.ts).
+- On success, a signed httpOnly session cookie is set (`SESSION_SECRET` signs it) —
+  the raw passcode is never stored client-side.
+- Login attempts are rate-limited in-memory per IP (5 attempts / 10 min).
+
+## Getting started
 
 ```bash
+cp .env.example .env.local
+# fill in FOUNDER_PASSCODE and SESSION_SECRET at minimum:
+#   openssl rand -hex 32   # for SESSION_SECRET
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) — you'll be redirected to
+`/login`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Adding a live provider card
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Confirm against that provider's *current* docs that a usage/balance API exists
+   and that our account tier can reach it. Don't assume the table in the original
+   spec is still accurate.
+2. Add a server-side fetcher (Route Handler or server-only module — never expose
+   the key to the client) with sensible caching (these are billing endpoints, a
+   few-minutes cache is fine).
+3. Add the provider's env vars to `.env.example` with a comment on where to find
+   them in that provider's dashboard.
+4. Flip the provider's `status` to `"live"` in `registry.ts` only after verifying
+   it returns real data with a real key.
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Target: Vercel, on `console.hostwithmira.com`.
