@@ -1,6 +1,8 @@
 import { LiveProviderData } from "../types";
 import { fetchTwilioLiveData } from "./twilio";
 import { fetchCloudinaryLiveData } from "./cloudinary";
+import { fetchSearchApiLiveData } from "./searchapi";
+import { fetchOpenRouterLiveData } from "./openrouter";
 
 /**
  * Maps a provider id (registry.ts) to its live fetcher. Add an entry here only
@@ -10,4 +12,6 @@ import { fetchCloudinaryLiveData } from "./cloudinary";
 export const LIVE_FETCHERS: Record<string, () => Promise<LiveProviderData>> = {
   twilio: fetchTwilioLiveData,
   cloudinary: fetchCloudinaryLiveData,
+  searchapi: fetchSearchApiLiveData,
+  openrouter: fetchOpenRouterLiveData,
 };

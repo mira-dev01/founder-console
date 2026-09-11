@@ -24,7 +24,7 @@ export const PROVIDERS: ProviderDefinition[] = [
     dashboardUrl: "https://console.groq.com/",
     status: "reference",
     referenceReason:
-      "Unverified whether Groq's public API exposes account-level usage/credits. Not wired yet.",
+      "Checked 2026-09-11: Groq has no public account-level usage/credits API — only rate-limit headers on inference responses and a dashboard. Staying reference.",
   },
   {
     id: "sarvam",
@@ -33,7 +33,7 @@ export const PROVIDERS: ProviderDefinition[] = [
     dashboardUrl: "https://dashboard.sarvam.ai/",
     status: "reference",
     referenceReason:
-      "Niche provider — unverified whether any usage API exists. Not wired yet.",
+      "Checked 2026-09-11: no documented API for credit balance — only a dashboard usage page (dashboard.sarvam.ai/usage). Staying reference.",
   },
   {
     id: "exotel",
@@ -42,7 +42,7 @@ export const PROVIDERS: ProviderDefinition[] = [
     dashboardUrl: "https://my.exotel.com/",
     status: "reference",
     referenceReason:
-      "Unverified whether Exotel's API exposes account balance or call-minute usage. Not wired yet.",
+      "Checked 2026-09-11: Exotel does have a Balance API (GET /v1/Accounts/{sid}/Balance.json, Basic Auth), but the current EXOTEL_API_KEY/TOKEN/SID got a 403 \"Authorization failed\" against api.exotel.com, api.in.exotel.com, and api.exotel.in. Likely the wrong region subdomain or a key scoped without account-balance access — needs corrected credentials from the Exotel dashboard before this can go live.",
   },
   {
     id: "bright-data",
@@ -51,15 +51,14 @@ export const PROVIDERS: ProviderDefinition[] = [
     dashboardUrl: "https://brightdata.com/cp/dashboard",
     status: "reference",
     referenceReason:
-      "Likely has an account/usage API — unverified. Not wired yet.",
+      "Checked 2026-09-11: Bright Data has a real endpoint (GET api.brightdata.com/customer/balance, Bearer auth), but the current BRIGHT_DATA_API_KEY got a 403 — \"API key lacks the required permissions for this action.\" Needs a token with account-management scope from brightdata.com/cp/setting/users.",
   },
   {
     id: "searchapi",
     name: "SearchApi.io",
     usage: "Live Airbnb pricing lookups",
     dashboardUrl: "https://www.searchapi.io/dashboard",
-    status: "reference",
-    referenceReason: "Unverified whether a usage API exists. Not wired yet.",
+    status: "live",
   },
   {
     id: "cloudinary",
@@ -73,9 +72,7 @@ export const PROVIDERS: ProviderDefinition[] = [
     name: "OpenRouter",
     usage: "LLM fallback path",
     dashboardUrl: "https://openrouter.ai/credits",
-    status: "reference",
-    referenceReason:
-      "OpenRouter has historically exposed a credits/usage endpoint — unverified against current docs. Not wired yet.",
+    status: "live",
   },
   {
     id: "smtp",
@@ -92,7 +89,7 @@ export const PROVIDERS: ProviderDefinition[] = [
     dashboardUrl: "https://dashboard.clerk.com/",
     status: "reference",
     referenceReason:
-      "Usage-based billing exists but this is low priority to wire live. Not wired yet.",
+      "Checked 2026-09-11: Clerk's Billing API lets Clerk's customers bill their OWN end users — it doesn't expose what Clerk charges us (monthly retained users / invoice) anywhere but the dashboard. No API for that. Staying reference.",
   },
   {
     id: "railway",
@@ -101,7 +98,7 @@ export const PROVIDERS: ProviderDefinition[] = [
     dashboardUrl: "https://railway.app/dashboard",
     status: "reference",
     referenceReason:
-      "Has a GraphQL API that can expose project usage/spend — unverified. Not wired yet.",
+      "Checked 2026-09-11: real GraphQL API at backboard.railway.com/graphql/v2 (Bearer token from an account or Project-Access-Token). Haven't built/tested the actual usage query yet, and no RAILWAY_API_TOKEN/RAILWAY_PROJECT_ID added — add those and I'll wire and verify it.",
   },
   {
     id: "vercel",
@@ -109,7 +106,8 @@ export const PROVIDERS: ProviderDefinition[] = [
     usage: "Hosts MIRA's frontend (and this app)",
     dashboardUrl: "https://vercel.com/dashboard",
     status: "reference",
-    referenceReason: "Has a usage API — unverified against current docs. Not wired yet.",
+    referenceReason:
+      "Checked 2026-09-11: Vercel has multiple real usage/billing endpoints (/v1/billing/charges in FOCUS format, AI Gateway's /v1/credits, /v1/report for aggregated spend — Hobby/Pro-trial excluded from /v1/report). Need to pick the right one and test against a real token — no VERCEL_API_TOKEN/VERCEL_TEAM_ID added yet.",
   },
   {
     id: "neon",
@@ -118,7 +116,7 @@ export const PROVIDERS: ProviderDefinition[] = [
     dashboardUrl: "https://console.neon.tech/",
     status: "reference",
     referenceReason:
-      "Neon has an API for compute/storage usage — unverified. Not wired yet.",
+      "Checked 2026-09-11: Neon has a project consumption-metrics API for usage-based plans (compute in CU-seconds, storage in bytes/hour) — matches the invoice. The old account-level endpoint is deprecated (sunsetting 2026-06-01), so this needs the current project-scoped one. No NEON_API_KEY/NEON_PROJECT_ID added yet.",
   },
   {
     id: "redis",
@@ -127,6 +125,6 @@ export const PROVIDERS: ProviderDefinition[] = [
     dashboardUrl: "https://console.upstash.com/",
     status: "reference",
     referenceReason:
-      "Depends which provider is actually in use — Upstash has a usage API, a Railway addon may not expose one separately. Not wired yet.",
+      "Checked 2026-09-11: REDIS_URL in mira-prod points at an Upstash host (charmed-hyena-...upstash.io), so this is Upstash, not a Railway addon. Upstash's Developer API has a GET /v2/redis/stats/{id} endpoint (separate from the REST data-plane API/token) with connection/throughput/disk stats — needs UPSTASH_REDIS_REST_URL/TOKEN plus a Developer API key to wire and verify.",
   },
 ];
