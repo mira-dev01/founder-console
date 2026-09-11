@@ -15,9 +15,7 @@ export const PROVIDERS: ProviderDefinition[] = [
     name: "Twilio",
     usage: "Guest/host WhatsApp messages, escalations, optional Voice fallback",
     dashboardUrl: "https://console.twilio.com/us1/monitor/usage",
-    status: "reference",
-    referenceReason:
-      "Twilio has a real Usage Records API and Balance API — high confidence this can go live. Not wired yet.",
+    status: "live",
   },
   {
     id: "groq",
@@ -68,9 +66,7 @@ export const PROVIDERS: ProviderDefinition[] = [
     name: "Cloudinary",
     usage: "Re-hosting property photos",
     dashboardUrl: "https://console.cloudinary.com/",
-    status: "reference",
-    referenceReason:
-      "Has a documented Admin API usage endpoint — high confidence this can go live. Not wired yet.",
+    status: "live",
   },
   {
     id: "openrouter",

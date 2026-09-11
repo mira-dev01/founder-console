@@ -1,10 +1,32 @@
 import { PROVIDERS } from "@/lib/providers/registry";
+import { LIVE_FETCHERS } from "@/lib/providers/live";
 import { ProviderCardData } from "@/lib/providers/types";
 import { ProviderCard } from "@/components/ProviderCard";
 import { LogoutButton } from "@/components/LogoutButton";
 
-export default function Home() {
-  const providers: ProviderCardData[] = PROVIDERS;
+async function getProviders(): Promise<ProviderCardData[]> {
+  return Promise.all(
+    PROVIDERS.map(async (provider): Promise<ProviderCardData> => {
+      const fetchLive = LIVE_FETCHERS[provider.id];
+      if (!fetchLive) return provider;
+
+      try {
+        return { ...provider, live: await fetchLive() };
+      } catch (err) {
+        return {
+          ...provider,
+          live: {
+            lastCheckedAt: new Date().toISOString(),
+            error: err instanceof Error ? err.message : "Unknown error",
+          },
+        };
+      }
+    }),
+  );
+}
+
+export default async function Home() {
+  const providers = await getProviders();
   const sorted = [...providers].sort((a, b) => {
     if (a.status === b.status) return 0;
     return a.status === "live" ? -1 : 1;
